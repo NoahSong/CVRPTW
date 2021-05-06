@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.OrTools" Version="8.1.8487" />
+    <PackageReference Include="Google.OrTools" Version="9.0.9048" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.3" />
   </ItemGroup>
 
