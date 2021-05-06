@@ -1,22 +1,46 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ClientApp\node_modules\**" />
-    <EmbeddedResource Remove="ClientApp\node_modules\**" />
-    <None Remove="ClientApp\node_modules\**" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="Google.OrTools" Version="8.1.8487" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ClientApp\" />
+    <ProjectReference Include="..\CVRPTW.Shared\CVRPTW.Shared.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)\Datasets\testDataset10.json">
+      <Link>testDataset10.json</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)\Datasets\testDataset100.json">
+      <Link>testDataset100.json</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)\Datasets\testDataset1000.json">
+      <Link>testDataset1000.json</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="testDataset10.json">
+      <Pack>true</Pack>
+      <PackagePath>build</PackagePath>
+    </None>
+    <None Include="testDataset100.json">
+      <Pack>true</Pack>
+      <PackagePath>build</PackagePath>
+    </None>
+    <None Include="testDataset1000.json">
+      <Pack>true</Pack>
+      <PackagePath>build</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

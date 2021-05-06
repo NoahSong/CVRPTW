@@ -1,0 +1,124 @@
+/* You can add global styles to this file, and also import other style files */
+$button-padding: 15px;
+$primary-color: #292a2b;
+$accent-color: #40bfc1;
+
+* {
+  padding: 0px;
+  margin: 0px;
+}
+
+body {
+  background: $primary-color;
+}
+
+header {
+  color: $accent-color;
+  font-size: 25px;
+  padding: 10px;
+}
+
+section {
+  display: flex;
+  display: -webkit-flex;
+}
+
+button {
+  border: 0px;
+  background-color: $accent-color;
+  color: white;
+  &:hover {
+    background-color: darken($color: $accent-color, $amount: 10);
+  }
+  &:disabled {
+    background-color: gray;
+    pointer-events: none;
+    opacity: 0.3;
+  }
+}
+
+hr {
+  border: 0px;
+  border-top: 3px solid $accent-color;
+  margin: 10px 0px;
+}
+
+.btn-lg {
+  padding: $button-padding/1.5 $button-padding * 2.5 $button-padding/1.5
+    $button-padding * 2.5;
+  font-size: 1.2em;
+}
+
+.btn-md {
+  padding: $button-padding/2 $button-padding * 2 $button-padding/2
+    $button-padding * 2;
+  font-size: 1em;
+}
+
+.btn-sm {
+  padding: $button-padding/2.5 $button-padding * 1.5 $button-padding/2.5
+    $button-padding * 1.5;
+  font-size: 0.8em;
+}
+
+.side-container {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  background: $primary-color;
+  padding: 0px 10px;
+  color: white;
+
+  .data-config-panel {
+    margin-bottom: 20px;
+  }
+}
+
+.main-container {
+  flex: 3;
+  -webkit-flex: 3;
+  -ms-flex: 3;
+  .map {
+    width: auto;
+    height: calc(100vh - 50px);
+  }
+}
+
+.booking-detail {
+  position: relative;
+  background-color: $primary-color;
+  opacity: 0.6;
+  color: white;
+  border-radius: 0.4em;
+  padding: 5px;
+  z-index: 0;
+  top: 0px;
+  left: 0px;
+  transform: translate(-40%, -70%);
+}
+
+.booking-detail::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border: 0.4em solid transparent;
+  border-top-color: $primary-color;
+  border-bottom: 0;
+  margin-left: -0.4em;
+  margin-bottom: -0.4em;
+}
+
+.booking-detail:hover {
+  opacity: 1;
+  z-index: 1;
+}
+
+@media (max-width: 600px) {
+  section {
+    -webkit-flex-direction: column;
+    flex-direction: column;
+  }
+}

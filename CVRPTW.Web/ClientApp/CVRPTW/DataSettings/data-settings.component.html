@@ -1,0 +1,24 @@
+<div class="data-config-panel">
+  <h3>Routing Data Setting For Calculation</h3>
+  <div style="margin-top: 10px;">
+    Select Test Type:
+    <select name="selectedTestOption" [(ngModel)]="viewModel.selectedTestOption" #selectedTestOption="ngModel">
+      <option *ngFor="let option of viewModel.testOptions" [value]="option.value">{{option.title}}</option>
+    </select>
+  </div>
+  <div *ngIf="vehicleRoutingModel">
+    <hr>
+    <h3>Calculation Results</h3>
+    <p>Total locations: {{vehicleRoutingModel.bookings.length}}</p>
+    <p>Total Duration: {{(vehicleRoutingModel.totalDuration / 60).toFixed(0)}} mins</p>
+    <br>
+    <ul *ngFor="let vehicle of vehicleRoutingModel.depot.vehicles">
+      <h4>{{vehicle.name}}</h4>
+      <p>Duration: {{(vehicle.totalDuration / 60).toFixed(0)}}</p>
+      <p>Order: {{getBookingOrders(vehicle)}} </p>
+    </ul>
+  </div>
+</div>
+<button class="btn-lg" (click)="calculateClicked(viewModel.selectedTestOption)" [disabled]="loading">
+  CALCULATE
+</button>
