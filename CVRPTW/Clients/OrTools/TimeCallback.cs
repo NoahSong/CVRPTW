@@ -9,7 +9,7 @@ namespace CVRPTW.Clients.OrTools
         private RoutingIndexManager _manager;
         private int[,] _timeMatrix;
         private int[] _serviceTimeMatrix;
-        private FuelType? _fuelType;
+        private FuelType? _vehicleFuelType;
 
         public LongLongToLong Callback { get; set; }
 
@@ -19,7 +19,7 @@ namespace CVRPTW.Clients.OrTools
             _timeMatrix = timeMatrix;
             _serviceTimeMatrix = serviceTimeMatrix;
             _manager = manager;
-            _fuelType = fuelType;
+            _vehicleFuelType = fuelType;
 
             if (serviceTimeMatrix != null && fuelType != null)
             {
@@ -54,7 +54,15 @@ namespace CVRPTW.Clients.OrTools
             //TODO: Calculate with the consideration of fuel type.
             var fromNode = _manager.IndexToNode(fromIndex);
             var toNode = _manager.IndexToNode(toIndex);
-            return _timeMatrix[fromNode, toNode] + _serviceTimeMatrix[fromNode];
+
+            if (fromNode != 0 && _dataset.Bookings[fromNode - 1].FuelType != _vehicleFuelType)
+            {
+                return -1;
+            }
+            else
+            {
+                return _timeMatrix[fromNode, toNode] + _serviceTimeMatrix[fromNode];
+            }
         }
     }
 }

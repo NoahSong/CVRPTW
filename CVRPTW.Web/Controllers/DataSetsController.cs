@@ -197,7 +197,6 @@ namespace CVRPTW.Web.Controllers
 
                 int transitCallbackIndex = routing.RegisterTransitCallback(timeCallback.Callback);
 
-
                 routing.SetArcCostEvaluatorOfAllVehicles(transitCallbackIndex);
                 var searchParameters = operations_research_constraint_solver.DefaultRoutingSearchParameters();
                 searchParameters.FirstSolutionStrategy = FirstSolutionStrategy.Types.Value.PathCheapestArc;
@@ -387,7 +386,10 @@ namespace CVRPTW.Web.Controllers
                 }
             ).ToArray();
 
-            var initialOperatingStartTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 6, 0, 0);
+            var firstBooking = bookings.First();
+
+
+            var initialOperatingStartTime = new DateTime(firstBooking.ServiceFromTime.Year, firstBooking.ServiceFromTime.Month, firstBooking.ServiceFromTime.Day, 6, 0, 0);
             var dataset = new VehicleRoutingModel
             {
                 Bookings = bookings,
@@ -398,9 +400,9 @@ namespace CVRPTW.Web.Controllers
                         new VehicleRoutingModel.DepotModel.Vehicle
                         {
                             Name = "Vehicle 1",
-                            FuelType = FuelType.Petrol | FuelType.Diesel,
+                            FuelType = FuelType.Petrol,
                             DeliveryStartTime = initialOperatingStartTime.TimeOfDay,
-                            DeliveryEndTime = initialOperatingStartTime.AddHours(12).TimeOfDay
+                            DeliveryEndTime = initialOperatingStartTime.AddHours(16).TimeOfDay
                         }
                     },
                     Location = new VehicleRoutingModel.Location
@@ -420,13 +422,51 @@ namespace CVRPTW.Web.Controllers
 
                 var manager = new RoutingIndexManager(timeMatrix.GetLength(0), dataset.Depot.Vehicles.Length, 0);
                 var routing = new RoutingModel(manager);
+                var callbackIndices = new int[dataset.Depot.Vehicles.Length];
 
-                int transitCallbackIndex = routing.RegisterTransitCallback((long fromIndex, long toIndex) =>
+                for (int i = 0; i < dataset.Depot.Vehicles.Length; i++)
                 {
-                    var fromNode = manager.IndexToNode(fromIndex);
-                    var toNode = manager.IndexToNode(toIndex);
-                    return timeMatrix[fromNode, toNode] + serviceTimeMatrix[fromNode];
-                });
+                    var vehicle = dataset.Depot.Vehicles[i];
+                    var timeCallback = new TimeCallback(dataset, manager, timeMatrix, serviceTimeMatrix, vehicle.FuelType);
+
+                    var transitCallbackIndex = routing.RegisterTransitCallback(timeCallback.Callback);
+                    callbackIndices[i] = transitCallbackIndex;
+
+                    routing.SetArcCostEvaluatorOfVehicle(transitCallbackIndex, i);
+                }
+
+                routing.AddDimensionWithVehicleTransits(callbackIndices, timeWindows[0, 0], timeWindows[0, 1], false, "Time");
+
+                var timeDimension = routing.GetMutableDimension("Time");
+
+                for (int i = 1; i < timeWindows.GetLength(0); ++i)
+                {
+                    var index = manager.NodeToIndex(i);
+                    timeDimension.CumulVar(index).SetRange(timeWindows[i, 0], timeWindows[i, 1]);
+                }
+
+                for (int i = 0; i < dataset.Depot.Vehicles.Length; ++i)
+                {
+                    var index = routing.Start(i);
+                    timeDimension.CumulVar(index).SetRange(timeWindows[0, 0], timeWindows[0, 1]);
+                }
+
+                for (int i = 0; i < dataset.Depot.Vehicles.Length; ++i)
+                {
+                    routing.AddVariableMinimizedByFinalizer(timeDimension.CumulVar(routing.Start(i)));
+                    routing.AddVariableMinimizedByFinalizer(timeDimension.CumulVar(routing.End(i)));
+                }
+
+                RoutingSearchParameters searchParameters = operations_research_constraint_solver.DefaultRoutingSearchParameters();
+                searchParameters.FirstSolutionStrategy = FirstSolutionStrategy.Types.Value.PathCheapestArc;
+
+                Assignment solution = routing.SolveWithParameters(searchParameters);
+                //dataset.TotalDuration = solution.ObjectiveValue();
+
+                if (solution != null)
+                {
+                    dataset = SetFoundSolution(dataset, routing, manager, solution);
+                }
             }
 
             return dataset;
