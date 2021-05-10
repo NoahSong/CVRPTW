@@ -21,7 +21,7 @@ namespace CVRPTW.Services
             _httpClient = new HttpClient();
             _appSettings = appSettings;
         }
-        public async Task<int[,]> GetHereMapsRoutingMatrixResultAsync(VehicleRoutingModel parameter)
+        public async Task<int[,]> GetOsrmRoutingMatrixResultAsync(VehicleRoutingModel parameter)
         {
             var origins = new RoutingMatrixRequestModel();
             origins.Origins.Add($"{parameter.Depot.Location.Longitude.ToString()},{parameter.Depot.Location.Latitude.ToString()}" );

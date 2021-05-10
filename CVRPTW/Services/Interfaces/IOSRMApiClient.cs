@@ -5,6 +5,6 @@ namespace CVRPTW.Services
 {
     public interface IOsrmApiClient
     {
-        Task<int[,]> GetHereMapsRoutingMatrixResultAsync(VehicleRoutingModel parameter);
+        Task<int[,]> GetOsrmRoutingMatrixResultAsync(VehicleRoutingModel parameter);
     }
 }

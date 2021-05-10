@@ -35,7 +35,7 @@ namespace CVRPTW.Web
             // });
 
             services.AddMvc(options => { options.EnableEndpointRouting = false; });
-
+            services.AddSingleton<ITomtomMapsApiClient, TomtomMapsApiClient>();
             services.AddSingleton<IHereMapsApiClient, HereMapsApiClient>();
             services.AddSingleton<IOsrmApiClient, OsrmApiClient>();
         }

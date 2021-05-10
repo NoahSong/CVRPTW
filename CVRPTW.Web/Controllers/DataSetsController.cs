@@ -16,11 +16,17 @@ namespace CVRPTW.Web.Controllers
     {
         private readonly IHereMapsApiClient _hereMapsClient;
         private readonly IOsrmApiClient _osrmClient;
+        private readonly ITomtomMapsApiClient _tomtomClient;
 
-        public DataSetsController(IHereMapsApiClient hereMapsClient, IOsrmApiClient OsrmClient)
+        public DataSetsController(
+            IHereMapsApiClient hereMapsClient, 
+            IOsrmApiClient OsrmClient, 
+            ITomtomMapsApiClient TomtomClient
+            )
         {
             _hereMapsClient = hereMapsClient;
             _osrmClient = OsrmClient;
+            _tomtomClient = TomtomClient;
         }
 
         private void GetTimeWindowsAndServiceTimeMatrix(VehicleRoutingModel dataset, out int[,] timeWindows, out int[] serviceTimeMatrix)
@@ -420,7 +426,7 @@ namespace CVRPTW.Web.Controllers
             switch (selectedTestApiRoutingOption)
             {
                 case "osrm":
-                    timeMatrix = await _osrmClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+                    timeMatrix = await _osrmClient.GetOsrmRoutingMatrixResultAsync(dataset);
                     break;
                 case "here":
                     timeMatrix = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
@@ -429,7 +435,7 @@ namespace CVRPTW.Web.Controllers
                     timeMatrix = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
                     break;
                 case "tomtom": // todo : replace with proper client 
-                    timeMatrix = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+                    timeMatrix = await _tomtomClient.GetTomtomRoutingMatrixResultAsync(dataset);
                     break;
                 case "pgrouting": // todo : replace with proper client 
                     timeMatrix = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);

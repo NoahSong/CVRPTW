@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <None Remove="D:\fill\repo\testing-app\adding-new-time-matrix-providers\CVRPTW\CVRPTW\CVRPTW\\Datasets\testDataset10.json" />
+    <None Remove="Datasets\testDataset5.json" />
   </ItemGroup>
   
   <ItemGroup>
@@ -31,6 +32,16 @@
     <None Remove="D:\fill\repo\testing-app\adding-new-time-matrix-providers\CVRPTW\CVRPTW\CVRPTW\\Datasets\testDataset1000.json" />
     <None Include="$(MSBuildThisFileDirectory)\Datasets\testDataset1000.json">
       <Link>testDataset1000.json</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Models\tomtomApi\" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="testDataset5.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
