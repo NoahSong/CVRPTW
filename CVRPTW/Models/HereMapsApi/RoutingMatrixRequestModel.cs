@@ -30,7 +30,5 @@ namespace CVRPTW.Models.HereMapsApi
             [JsonProperty("type")]
             public string Type => "autoCircle";
         }
-
-
     }
 }

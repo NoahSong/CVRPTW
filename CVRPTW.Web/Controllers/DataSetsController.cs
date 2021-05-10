@@ -439,7 +439,6 @@ namespace CVRPTW.Web.Controllers
                 }
             };
 
-
             RoutingMatrixResultModel result = new RoutingMatrixResultModel();
             switch (selectedTestApiRoutingOption)
             {
