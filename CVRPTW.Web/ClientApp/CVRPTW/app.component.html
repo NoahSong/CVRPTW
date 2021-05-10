@@ -32,7 +32,7 @@
           </agm-polyline>
         </li>
       </ul>
-      <agm-circle *ngIf="vehicleRoutingModel" [strokeWeight]="3" strokeColor="#0000ff" fillColor="#0000ff" [fillOpacity]="0.25" [latitude]="vehicleRoutingModel.center.latitude" [longitude]="vehicleRoutingModel.center.longitude" [radius]="vehicleRoutingModel.radius">
+      <agm-circle *ngIf="vehicleRoutingModel && vehicleRoutingModel.center" [strokeWeight]="3" strokeColor="#0000ff" fillColor="#0000ff" [fillOpacity]="0.25" [latitude]="vehicleRoutingModel.center.latitude" [longitude]="vehicleRoutingModel.center.longitude" [radius]="vehicleRoutingModel.radius">
 
       </agm-circle>
     </agm-map>

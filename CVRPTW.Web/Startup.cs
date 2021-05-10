@@ -35,8 +35,9 @@ namespace CVRPTW.Web
             // });
 
             services.AddMvc(options => { options.EnableEndpointRouting = false; });
-
+            services.AddSingleton<ITomtomMapsApiClient, TomtomMapsApiClient>();
             services.AddSingleton<IHereMapsApiClient, HereMapsApiClient>();
+            services.AddSingleton<IOsrmApiClient, OsrmApiClient>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using CVRPTW.Clients.OrTools;
 using CVRPTW.Datasets;
+using CVRPTW.Models;
+using CVRPTW.Models.HereMapsApi;
 using CVRPTW.Models.VehicleRouting;
 using CVRPTW.Services;
 using Google.OrTools.ConstraintSolver;
@@ -16,9 +18,18 @@ namespace CVRPTW.Web.Controllers
     public class DataSetsController : Controller
     {
         private readonly IHereMapsApiClient _hereMapsClient;
-        public DataSetsController(IHereMapsApiClient hereMapsClient)
+        private readonly IOsrmApiClient _osrmClient;
+        private readonly ITomtomMapsApiClient _tomtomClient;
+
+        public DataSetsController(
+            IHereMapsApiClient hereMapsClient,
+            IOsrmApiClient OsrmClient,
+            ITomtomMapsApiClient TomtomClient
+            )
         {
             _hereMapsClient = hereMapsClient;
+            _osrmClient = OsrmClient;
+            _tomtomClient = TomtomClient;
         }
 
         private void GetTimeWindowsAndServiceTimeMatrix(VehicleRoutingModel dataset, out int[,] timeWindows, out int[] serviceTimeMatrix)
@@ -379,8 +390,8 @@ namespace CVRPTW.Web.Controllers
             return dataset;
         }
 
-        [HttpGet, Route("api/datasets/test-vrptw/{testDatasetType:int}")]
-        public async Task<VehicleRoutingModel> RunVRPTWTestDataset(TestDatasetType testDatasetType)
+        [HttpGet, Route("api/datasets/test-vrptw/{testDatasetType:int}/{optionSolverApi}/{selectedTestApiRoutingOption}")]
+        public async Task<VehicleRoutingModel> RunVRPTWTestDataset(TestDatasetType testDatasetType, string optionSolverApi, string selectedTestApiRoutingOption)
         {
             TestDatasetModel testDataset = new TestDatasetModel(testDatasetType);
 
@@ -428,8 +439,26 @@ namespace CVRPTW.Web.Controllers
                 }
             };
 
-            var result = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
-            var timeMatrix = result == null ? null : result.Matrix;
+            RoutingMatrixResultModel result = new RoutingMatrixResultModel();
+            switch (selectedTestApiRoutingOption)
+            {
+                case "osrm":
+                    result.Matrix = await _osrmClient.GetOsrmRoutingMatrixResultAsync(dataset);
+                    break;
+                case "tomtom":
+                    result.Matrix = await _tomtomClient.GetTomtomRoutingMatrixResultAsync(dataset);
+                    break;
+                case "esri": // todo : replace with proper client 
+                case "pgrouting": // todo : replace with proper client 
+                case "ors": // todo : replace with proper client 
+                case "here":
+                default:
+                    result = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+                    break;
+            }
+
+            int[,] timeMatrix = result == null && result.Matrix != null ? null : result.Matrix;
+
             GetTimeWindowsAndServiceTimeMatrix(dataset, out var timeWindows, out var serviceTimeMatrix);
 
             if (timeMatrix != null && timeMatrix.GetLength(1) == dataset.Bookings.Length + 1)
@@ -498,12 +527,16 @@ namespace CVRPTW.Web.Controllers
                 if (solution != null)
                 {
                     dataset = SetFoundSolution(dataset, routing, manager, solution);
-                    dataset.Center = new VehicleRoutingModel.Location
+
+                    if (result.Center != null)
                     {
-                        Latitude = result.Center.Lat,
-                        Longitude = result.Center.Lng
-                    };
-                    dataset.Radius = result.Radius;
+                        dataset.Center = new VehicleRoutingModel.Location
+                        {
+                            Latitude = result.Center.Lat,
+                            Longitude = result.Center.Lng
+                        };
+                        dataset.Radius = result.Radius;
+                    }
                 }
             }
 

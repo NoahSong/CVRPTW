@@ -12,9 +12,16 @@ export class DataSettingsService {
     this.httpClient = httpClient;
   }
 
-  public getTestDataSet(option: string): Observable<VehicleRoutingModel> {
+  public getTestDataSet(option: string, optionRoutingApi: string, optionSolver: string): Observable<VehicleRoutingModel> {
     return this.httpClient
-      .get("api/datasets/" + option)
-      .pipe(map(response => response as VehicleRoutingModel));
+      //.get("api/datasets/" + option + "/" + optionRoutingApi + `0${month}`)
+      .get(`api/datasets/${option}/${optionRoutingApi}/${optionSolver}`)
+      .pipe(map(response =>
+      {
+        let stop:number = 1; 
+        return (response as VehicleRoutingModel)
+      }
+        
+      ));
   }
 }

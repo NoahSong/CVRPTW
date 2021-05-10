@@ -7,6 +7,7 @@ namespace CVRPTW.Datasets
 {
     public enum TestDatasetType
     {
+        With5Data =5,
         With10Data = 10,
         With100Data = 100,
         with1000Data = 1000
@@ -29,6 +30,7 @@ namespace CVRPTW.Datasets
 
             switch (_testDatasetType)
             {
+                case TestDatasetType.With5Data: filePath = path + "testDataset5.json"; break;
                 case TestDatasetType.With10Data: filePath = path + "testDataset10.json"; break;
                 case TestDatasetType.With100Data: filePath = path + "testDataset100.json"; break;
                 case TestDatasetType.with1000Data: filePath = path + "testDataset1000.json"; break;

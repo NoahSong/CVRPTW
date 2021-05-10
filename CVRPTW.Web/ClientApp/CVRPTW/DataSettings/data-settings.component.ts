@@ -29,26 +29,47 @@ export class DataSettingsComponent implements OnInit {
     this.viewModel.testOptions = [
       { title: "Test with 21 static delivery points (VRP)", value: "test-vrp", isCustomisable: false },
       { title: "Test with 30 static delivery points (VRPTW)", value: "test-vrptw", isCustomisable: false },
-      { title: "Test with 10 test datset", value: "test-vrptw/10", isCustomisable: false },
-      { title: "Test with 100 test datset", value: "test-vrptw/100", isCustomisable: false },
-      { title: "Test with 1000 test datset", value: "test-vrptw/1000", isCustomisable: false }
+      { title: "Test with 5 test dataset", value: "test-vrptw/5", isCustomisable: false },
+      { title: "Test with 10 test dataset", value: "test-vrptw/10", isCustomisable: false },
+      { title: "Test with 100 test dataset", value: "test-vrptw/100", isCustomisable: false },
+      { title: "Test with 1000 test dataset", value: "test-vrptw/1000", isCustomisable: false }
+    ]; 
+    this.viewModel.testApiRoutingOption = [
+      { title: "Here API", value: "here", isCustomisable: false },
+      { title: "OSRM API", value: "osrm", isCustomisable: false },
+      { title: "OpenRouteService", value: "ors", isCustomisable: false },
+      { title: "tomtom", value: "tomtom", isCustomisable: false },
+      { title: "PGRouting", value: "pgrouting", isCustomisable: false },
+    ];
+    this.viewModel.testSolverOption = [
+      { title: "OR Tools", value: "ortools", isCustomisable: false },
+      { title: "VROOM", value: "vroom", isCustomisable: false },
+      { title: "PGRouting", value: "pgrouting", isCustomisable: false },
     ];
   }
 
-  public calculateClicked(calculationOption: string): void {
-    if (calculationOption) {
-      this.loading = true;
-      this.dataSettingsService
-        .getTestDataSet(calculationOption)
-        .subscribe(vehicleRoutingModel => {
-          this.vehicleRoutingModel = vehicleRoutingModel;
-          this.appEventService.vehicleRoutingDataChanged.next(this.vehicleRoutingModel);
-        },
-          () => { },
-          () => { this.loading = false; });
-    } else {
+  public calculateClicked(calculationOption: string, selectedTestApiRoutingOption: string, selectedTestSolverOption: string): void {
+
+    if (!selectedTestApiRoutingOption) {
+      this.viewModel.error = "Please select a routing API for the test";
+      return;
+    }
+    if (!selectedTestSolverOption) {
+      this.viewModel.error = "Please select a solver";
+      return;
+    }
+    if (!calculationOption) {
       this.viewModel.error = "Please select test type";
     }
+    this.loading = true;
+    this.dataSettingsService
+      .getTestDataSet(calculationOption, selectedTestSolverOption, selectedTestApiRoutingOption)
+      .subscribe(vehicleRoutingModel => {
+        this.vehicleRoutingModel = vehicleRoutingModel;
+        this.appEventService.vehicleRoutingDataChanged.next(this.vehicleRoutingModel );
+      },
+        () => { },
+        () => { this.loading = false; });
   }
 
   public getBookingOrders(vehicle: VehicleRoutingModel_Depot_Vehicle): string {
