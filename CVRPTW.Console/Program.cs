@@ -12,7 +12,7 @@ namespace CVRPTW
 
         static void Main(string[] args)
         {
-            //MatrixTest();
+            MatrixTest();
 
             TestDatasetModelTest();
 
