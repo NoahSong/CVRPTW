@@ -6,6 +6,6 @@ namespace CVRPTW.Services
 {
     public interface IHereMapsApiClient
     {
-        Task<int[,]> GetHereMapsRoutingMatrixResultAsync(VehicleRoutingModel parameter);
+        Task<RoutingMatrixResultModel> GetHereMapsRoutingMatrixResultAsync(VehicleRoutingModel parameter);
     }
 }

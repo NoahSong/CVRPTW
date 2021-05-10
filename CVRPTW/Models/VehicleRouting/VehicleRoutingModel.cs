@@ -9,6 +9,9 @@ namespace CVRPTW.Models.VehicleRouting
         public BookingModel[] Bookings { get; set; }
         public long TotalDuration { get; set; }
 
+        public Location Center { get; set; }
+        public int Radius { get; set; }
+
         public class BookingModel
         {
             public Location Location { get; set; }

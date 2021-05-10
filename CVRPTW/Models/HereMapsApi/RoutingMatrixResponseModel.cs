@@ -18,10 +18,14 @@ namespace CVRPTW.Models.HereMapsApi
         public class RegionModel
         {
             public string Type { get; set; }
-            public double West { get; set; }
-            public double East { get; set; }
-            public double North { get; set; }
-            public double South { get; set; }
+            public RegionLocationModel Center { get; set; }
+            public int Radius { get; set; }
+
+            public class RegionLocationModel
+            {
+                public double Lat { get; set; }
+                public double Lng { get; set; }
+            }
         }
     }
 }

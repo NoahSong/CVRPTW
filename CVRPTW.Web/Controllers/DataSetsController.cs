@@ -8,6 +8,7 @@ using CVRPTW.Datasets;
 using CVRPTW.Models.VehicleRouting;
 using CVRPTW.Services;
 using Google.OrTools.ConstraintSolver;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CVRPTW.Web.Controllers
@@ -160,7 +161,8 @@ namespace CVRPTW.Web.Controllers
             };
             #endregion
 
-            var timeMatrix = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+            var result = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+            var timeMatrix = result == null ? null : result.Matrix;
 
             if (timeMatrix != null && timeMatrix.GetLength(1) == dataset.Bookings.Length + 1)
             {
@@ -232,6 +234,12 @@ namespace CVRPTW.Web.Controllers
 
                 dataset.Depot.Vehicles[0].OrdinalBookings = ordinalBookings.ToArray();
                 dataset.TotalDuration = dataset.Depot.Vehicles[0].TotalDuration;
+                dataset.Center = new VehicleRoutingModel.Location
+                {
+                    Latitude = result.Center.Lat,
+                    Longitude = result.Center.Lng
+                };
+                dataset.Radius = result.Radius;
             }
 
             return dataset;
@@ -311,7 +319,8 @@ namespace CVRPTW.Web.Controllers
                 }
             };
 
-            var timeMatrix = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+            var result = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+            var timeMatrix = result == null ? null : result.Matrix;
             GetTimeWindowsAndServiceTimeMatrix(dataset, out var timeWindows, out var serviceTimeMatrix);
 
             if (timeMatrix != null && timeMatrix.GetLength(1) == dataset.Bookings.Length + 1)
@@ -358,6 +367,12 @@ namespace CVRPTW.Web.Controllers
                 if (solution != null)
                 {
                     dataset = SetFoundSolution(dataset, routing, manager, solution);
+                    dataset.Center = new VehicleRoutingModel.Location
+                    {
+                        Latitude = result.Center.Lat,
+                        Longitude = result.Center.Lng
+                    };
+                    dataset.Radius = result.Radius;
                 }
             }
 
@@ -413,32 +428,42 @@ namespace CVRPTW.Web.Controllers
                 }
             };
 
-            var timeMatrix = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+            var result = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+            var timeMatrix = result == null ? null : result.Matrix;
             GetTimeWindowsAndServiceTimeMatrix(dataset, out var timeWindows, out var serviceTimeMatrix);
 
             if (timeMatrix != null && timeMatrix.GetLength(1) == dataset.Bookings.Length + 1)
             {
                 dataset = SetTimeMatrixAndDurationForEachLocation(dataset, timeMatrix);
 
+                // Vehicles' start and end locations can be configured by RoutingIndexManager
                 var manager = new RoutingIndexManager(timeMatrix.GetLength(0), dataset.Depot.Vehicles.Length, 0);
                 var routing = new RoutingModel(manager);
                 var callbackIndices = new int[dataset.Depot.Vehicles.Length];
+                var unaryTransitCallbackIndices = new int[dataset.Depot.Vehicles.Length];
+                var vehicleCapacities = new long[dataset.Depot.Vehicles.Length];
 
                 for (int i = 0; i < dataset.Depot.Vehicles.Length; i++)
                 {
                     var vehicle = dataset.Depot.Vehicles[i];
                     var timeCallback = new TimeCallback(dataset, manager, timeMatrix, serviceTimeMatrix, vehicle.FuelType);
+                    var numberOfAvailableBookings = dataset.Bookings.Where(b => (b.FuelType & vehicle.FuelType) >= b.FuelType).Count();
+                    var unaryTransitCallback = new UnaryTransitCallback(dataset, manager, numberOfAvailableBookings, vehicle.FuelType);
 
                     var transitCallbackIndex = routing.RegisterTransitCallback(timeCallback.Callback);
+                    var unaryTransitCallbackIndex = routing.RegisterUnaryTransitCallback(unaryTransitCallback.Callback);
+
                     callbackIndices[i] = transitCallbackIndex;
+                    unaryTransitCallbackIndices[i] = unaryTransitCallbackIndex;
+                    vehicleCapacities[i] = numberOfAvailableBookings;
 
                     routing.SetArcCostEvaluatorOfVehicle(transitCallbackIndex, i);
                 }
 
                 routing.AddDimensionWithVehicleTransits(callbackIndices, timeWindows[0, 0], timeWindows[0, 1], false, "Time");
+                routing.AddDimensionWithVehicleTransitAndCapacity(unaryTransitCallbackIndices, 0, vehicleCapacities, true, "Capacity");
 
                 var timeDimension = routing.GetMutableDimension("Time");
-
                 for (int i = 1; i < timeWindows.GetLength(0); ++i)
                 {
                     var index = manager.NodeToIndex(i);
@@ -451,6 +476,12 @@ namespace CVRPTW.Web.Controllers
                     timeDimension.CumulVar(index).SetRange(timeWindows[0, 0], timeWindows[0, 1]);
                 }
 
+                var penalty = 100000;
+                for (int i = 1; i < timeWindows.GetLength(0); ++i)
+                {
+                    routing.AddDisjunction(new long[] { manager.NodeToIndex(i) }, penalty);
+                }
+
                 for (int i = 0; i < dataset.Depot.Vehicles.Length; ++i)
                 {
                     routing.AddVariableMinimizedByFinalizer(timeDimension.CumulVar(routing.Start(i)));
@@ -459,6 +490,7 @@ namespace CVRPTW.Web.Controllers
 
                 RoutingSearchParameters searchParameters = operations_research_constraint_solver.DefaultRoutingSearchParameters();
                 searchParameters.FirstSolutionStrategy = FirstSolutionStrategy.Types.Value.PathCheapestArc;
+                searchParameters.TimeLimit = new Duration { Seconds = 10 };
 
                 Assignment solution = routing.SolveWithParameters(searchParameters);
                 //dataset.TotalDuration = solution.ObjectiveValue();
@@ -466,6 +498,12 @@ namespace CVRPTW.Web.Controllers
                 if (solution != null)
                 {
                     dataset = SetFoundSolution(dataset, routing, manager, solution);
+                    dataset.Center = new VehicleRoutingModel.Location
+                    {
+                        Latitude = result.Center.Lat,
+                        Longitude = result.Center.Lng
+                    };
+                    dataset.Radius = result.Radius;
                 }
             }
 
