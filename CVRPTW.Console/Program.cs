@@ -54,13 +54,7 @@ namespace CVRPTW
             var model = new RoutingMatrixRequestModel
             {
                 Origins = origins.ToArray(),
-                RegionDefinition = new RoutingMatrixRequestModel.RegionModel
-                {
-                    West = origins.Min(o => o.Longitude),
-                    East = origins.Max(o => o.Longitude),
-                    North = origins.Max(o => o.Latitude),
-                    South = origins.Min(o => o.Latitude)
-                }
+                RegionDefinition = new RoutingMatrixRequestModel.RegionModel()
             };
 
 

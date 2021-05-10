@@ -439,12 +439,12 @@ namespace CVRPTW.Web.Controllers
                 }
             };
 
-            
+
             RoutingMatrixResultModel result = new RoutingMatrixResultModel();
             switch (selectedTestApiRoutingOption)
             {
                 case "osrm":
-                    result.Matrix = await _osrmClient.GetOsrmRoutingMatrixResultAsync(dataset);  
+                    result.Matrix = await _osrmClient.GetOsrmRoutingMatrixResultAsync(dataset);
                     break;
                 case "tomtom":
                     result.Matrix = await _tomtomClient.GetTomtomRoutingMatrixResultAsync(dataset);
@@ -528,12 +528,16 @@ namespace CVRPTW.Web.Controllers
                 if (solution != null)
                 {
                     dataset = SetFoundSolution(dataset, routing, manager, solution);
-                    dataset.Center = new VehicleRoutingModel.Location
+
+                    if (result.Center != null)
                     {
-                        Latitude = result.Center.Lat,
-                        Longitude = result.Center.Lng
-                    };
-                    dataset.Radius = result.Radius;
+                        dataset.Center = new VehicleRoutingModel.Location
+                        {
+                            Latitude = result.Center.Lat,
+                            Longitude = result.Center.Lng
+                        };
+                        dataset.Radius = result.Radius;
+                    }
                 }
             }
 

@@ -1,6 +1,6 @@
 using System;
 
-namespace CVRPTW.Models.HereMapsApi
+namespace CVRPTW.Models
 {
     public class RoutingMatrixResultModel
     {
