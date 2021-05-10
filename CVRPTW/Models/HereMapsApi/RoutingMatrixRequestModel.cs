@@ -28,19 +28,7 @@ namespace CVRPTW.Models.HereMapsApi
         public class RegionModel
         {
             [JsonProperty("type")]
-            public string Type => "boundingBox";
-
-            [JsonProperty("west")]
-            public double West { get; set; }
-
-            [JsonProperty("east")]
-            public double East { get; set; }
-
-            [JsonProperty("north")]
-            public double North { get; set; }
-
-            [JsonProperty("south")]
-            public double South { get; set; }
+            public string Type => "autoCircle";
         }
     }
 }

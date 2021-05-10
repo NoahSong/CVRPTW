@@ -8,7 +8,7 @@
     <agm-map class="map" [latitude]="viewModel.mapLatitude ? viewModel.mapLatitude : 0" [longitude]="viewModel.mapLongitude ? viewModel.mapLongitude : 0" [showDefaultInfoWindow]="false" [styles]="viewModel.mapStyle">
       <agm-overlay *ngFor="let booking of vehicleRoutingModel?.bookings" [latitude]="booking.location.latitude" [longitude]="booking.location.longitude">
         <div class="booking-detail">
-          <h3>{{booking.title}} - <strong style="color: red;">{{booking.order}}</strong></h3>
+          <h3>{{booking.title}} - <strong style="color: #ff0000;">{{booking.order}}</strong></h3>
           <p>
             {{booking.serviceFromTime | date :'hh:mm a'}} ~ {{booking.serviceToTime | date: "hh:mm a"}}
           </p>
@@ -26,12 +26,15 @@
             <agm-polyline-point [latitude]="point.latitude" [longitude]="point.longitude"></agm-polyline-point>
             <agm-polyline-point [latitude]="booking.location.latitude" [longitude]="booking.location.longitude"></agm-polyline-point>
           </agm-polyline>
-          <agm-polyline strokeColor="#40bfc1" [zIndex]="1" [strokeWeight]="6">
+          <agm-polyline strokeColor="#40bfc1" [zIndex]="1" [strokeWeight]="3">
             <agm-polyline-point [latitude]="booking.location.latitude" [longitude]="booking.location.longitude"></agm-polyline-point>
             <agm-polyline-point *ngIf="vehicleRoutingModel!.bookings[booking.nextNodeIndex] != undefined" [latitude]="vehicleRoutingModel!.bookings[booking.nextNodeIndex].location.latitude" [longitude]="vehicleRoutingModel!.bookings[booking.nextNodeIndex].location.longitude"></agm-polyline-point>
           </agm-polyline>
         </li>
       </ul>
+      <agm-circle *ngIf="vehicleRoutingModel" [strokeWeight]="3" strokeColor="#0000ff" fillColor="#0000ff" [fillOpacity]="0.25" [latitude]="vehicleRoutingModel.center.latitude" [longitude]="vehicleRoutingModel.center.longitude" [radius]="vehicleRoutingModel.radius">
+
+      </agm-circle>
     </agm-map>
   </div>
 </section>

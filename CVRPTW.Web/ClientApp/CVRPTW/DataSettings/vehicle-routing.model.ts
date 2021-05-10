@@ -4,6 +4,8 @@ export class VehicleRoutingModel {
   public bookings: VehicleRoutingModel_Booking[] = [];
   public totalDuration!: number;
   public depot!: VehicleRoutingModel_Depot;
+  public center!: VehicleRoutingModel_Location;
+  public radius!: number;
 }
 
 export class VehicleRoutingModel_Booking {

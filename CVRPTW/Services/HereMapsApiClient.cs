@@ -21,7 +21,7 @@ namespace CVRPTW.Services
             _httpClient = new HttpClient();
             _appSettings = appSettings;
         }
-        public async Task<int[,]> GetHereMapsRoutingMatrixResultAsync(VehicleRoutingModel parameter)
+        public async Task<RoutingMatrixResultModel> GetHereMapsRoutingMatrixResultAsync(VehicleRoutingModel parameter)
         {
             var origins = new List<RoutingMatrixRequestModel.Coordinates>();
             origins.Add(new RoutingMatrixRequestModel.Coordinates
@@ -42,13 +42,7 @@ namespace CVRPTW.Services
             var model = new RoutingMatrixRequestModel
             {
                 Origins = origins.ToArray(),
-                RegionDefinition = new RoutingMatrixRequestModel.RegionModel
-                {
-                    West = origins.Min(o => o.Longitude),
-                    East = origins.Max(o => o.Longitude),
-                    North = origins.Max(o => o.Latitude),
-                    South = origins.Min(o => o.Latitude)
-                }
+                RegionDefinition = new RoutingMatrixRequestModel.RegionModel()
             };
 
             var apiKey = _appSettings.Value.HereMaps.ApiKey;
@@ -64,7 +58,6 @@ namespace CVRPTW.Services
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                //var result = JsonConvert.DeserializeObject<RoutingMatrixResponseModel>(response);
                 var result = JsonConvert.DeserializeObject<RoutingMatrixResponseModel>(response.Content.ReadAsStringAsync().Result);
                 var matrix = result.Matrix;
                 var timeMatrix = new int[matrix.NumOrigins, matrix.NumDestinations];
@@ -74,7 +67,16 @@ namespace CVRPTW.Services
                     Buffer.BlockCopy(matrix.TravelTimes, i * matrix.NumDestinations * sizeof(int), timeMatrix, i * matrix.NumDestinations * sizeof(int), matrix.NumDestinations * sizeof(int));
                 }
 
-                return timeMatrix;
+                return new RoutingMatrixResultModel
+                {
+                    Matrix = timeMatrix,
+                    Center = new RoutingMatrixResultModel.LocationModel
+                    {
+                        Lat = result.RegionDefinition.Center.Lat,
+                        Lng = result.RegionDefinition.Center.Lng,
+                    },
+                    Radius = result.RegionDefinition.Radius
+                };
             }
             return null;
         }

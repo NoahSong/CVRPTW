@@ -21,11 +21,7 @@ namespace CVRPTW.Clients.OrTools
             _manager = manager;
             _vehicleFuelType = fuelType;
 
-            if (serviceTimeMatrix != null && fuelType != null)
-            {
-                Callback = RunWithServiceTimeAndFuelType;
-            }
-            else if (serviceTimeMatrix != null && fuelType == null)
+            if (serviceTimeMatrix != null)
             {
                 Callback = RunWithServiceTime;
             }
@@ -47,22 +43,6 @@ namespace CVRPTW.Clients.OrTools
             var fromNode = _manager.IndexToNode(fromIndex);
             var toNode = _manager.IndexToNode(toIndex);
             return _timeMatrix[fromNode, toNode] + _serviceTimeMatrix[fromNode];
-        }
-
-        private long RunWithServiceTimeAndFuelType(long fromIndex, long toIndex)
-        {
-            //TODO: Calculate with the consideration of fuel type.
-            var fromNode = _manager.IndexToNode(fromIndex);
-            var toNode = _manager.IndexToNode(toIndex);
-
-            if (fromNode != 0 && _dataset.Bookings[fromNode - 1].FuelType != _vehicleFuelType)
-            {
-                return -1;
-            }
-            else
-            {
-                return _timeMatrix[fromNode, toNode] + _serviceTimeMatrix[fromNode];
-            }
         }
     }
 }
