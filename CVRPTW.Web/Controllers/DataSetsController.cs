@@ -15,9 +15,12 @@ namespace CVRPTW.Web.Controllers
     public class DataSetsController : Controller
     {
         private readonly IHereMapsApiClient _hereMapsClient;
-        public DataSetsController(IHereMapsApiClient hereMapsClient)
+        private readonly IOsrmApiClient _osrmClient;
+
+        public DataSetsController(IHereMapsApiClient hereMapsClient, IOsrmApiClient OsrmClient)
         {
             _hereMapsClient = hereMapsClient;
+            _osrmClient = OsrmClient;
         }
 
         private void GetTimeWindowsAndServiceTimeMatrix(VehicleRoutingModel dataset, out int[,] timeWindows, out int[] serviceTimeMatrix)
@@ -364,8 +367,8 @@ namespace CVRPTW.Web.Controllers
             return dataset;
         }
 
-        [HttpGet, Route("api/datasets/test-vrptw/{testDatasetType:int}")]
-        public async Task<VehicleRoutingModel> RunVRPTWTestDataset(TestDatasetType testDatasetType)
+        [HttpGet, Route("api/datasets/test-vrptw/{testDatasetType:int}/{optionSolverApi}/{selectedTestApiRoutingOption}")]
+        public async Task<VehicleRoutingModel> RunVRPTWTestDataset(TestDatasetType testDatasetType, string optionSolverApi, string selectedTestApiRoutingOption)
         {
             TestDatasetModel testDataset = new TestDatasetModel(testDatasetType);
 
@@ -413,7 +416,32 @@ namespace CVRPTW.Web.Controllers
                 }
             };
 
-            var timeMatrix = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+            int[,] timeMatrix = null;
+            switch (selectedTestApiRoutingOption)
+            {
+                case "osrm":
+                    timeMatrix = await _osrmClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+                    break;
+                case "here":
+                    timeMatrix = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+                    break;
+                case "ors": // todo : replace with proper client 
+                    timeMatrix = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+                    break;
+                case "tomtom": // todo : replace with proper client 
+                    timeMatrix = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+                    break;
+                case "pgrouting": // todo : replace with proper client 
+                    timeMatrix = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+                    break;
+                case "esri": // todo : replace with proper client 
+                    timeMatrix = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+                    break;
+                default:
+                    timeMatrix = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+                    break;
+            }
+
             GetTimeWindowsAndServiceTimeMatrix(dataset, out var timeWindows, out var serviceTimeMatrix);
 
             if (timeMatrix != null && timeMatrix.GetLength(1) == dataset.Bookings.Length + 1)

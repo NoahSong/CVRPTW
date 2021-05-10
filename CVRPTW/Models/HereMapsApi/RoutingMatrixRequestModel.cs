@@ -42,5 +42,7 @@ namespace CVRPTW.Models.HereMapsApi
             [JsonProperty("south")]
             public double South { get; set; }
         }
+
+
     }
 }

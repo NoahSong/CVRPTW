@@ -5,6 +5,16 @@
     <select name="selectedTestOption" [(ngModel)]="viewModel.selectedTestOption" #selectedTestOption="ngModel">
       <option *ngFor="let option of viewModel.testOptions" [value]="option.value">{{option.title}}</option>
     </select>
+    <br />
+    Select routing Api:
+    <select name="selectedTestApiRoutingOption" [(ngModel)]="viewModel.selectedTestApiRoutingOption" #selectedTestApiRoutingOption="ngModel">
+      <option *ngFor="let option of viewModel.testApiRoutingOption" [value]="option.value">{{option.title}}</option>
+    </select>
+    <br />
+    Select Sover:
+    <select name="selectedTestSolverOption" [(ngModel)]="viewModel.selectedTestSolverOption" #selectedTestSolverOption="ngModel">
+      <option *ngFor="let option of viewModel.testSolverOption" [value]="option.value">{{option.title}}</option>
+    </select>
   </div>
   <div *ngIf="vehicleRoutingModel">
     <hr>
@@ -19,6 +29,6 @@
     </ul>
   </div>
 </div>
-<button class="btn-lg" (click)="calculateClicked(viewModel.selectedTestOption)" [disabled]="loading">
+<button class="btn-lg" (click)="calculateClicked(viewModel.selectedTestOption,viewModel.selectedTestApiRoutingOption,viewModel.selectedTestSolverOption)" [disabled]="loading">
   CALCULATE
 </button>

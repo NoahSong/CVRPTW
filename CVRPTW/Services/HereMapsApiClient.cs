@@ -39,15 +39,16 @@ namespace CVRPTW.Services
                 };
             }));
 
+            var approximate10KmInDegrees = 0.1;
             var model = new RoutingMatrixRequestModel
             {
                 Origins = origins.ToArray(),
                 RegionDefinition = new RoutingMatrixRequestModel.RegionModel
                 {
-                    West = origins.Min(o => o.Longitude),
-                    East = origins.Max(o => o.Longitude),
-                    North = origins.Max(o => o.Latitude),
-                    South = origins.Min(o => o.Latitude)
+                    West = origins.Min(o => o.Longitude) - approximate10KmInDegrees,
+                    East = origins.Max(o => o.Longitude) + approximate10KmInDegrees,
+                    North = origins.Max(o => o.Latitude) + approximate10KmInDegrees,
+                    South = origins.Min(o => o.Latitude) - approximate10KmInDegrees
                 }
             };
 

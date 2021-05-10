@@ -13,33 +13,25 @@
   <ItemGroup>
     <ProjectReference Include="..\CVRPTW.Shared\CVRPTW.Shared.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\fill\repo\testing-app\adding-new-time-matrix-providers\CVRPTW\CVRPTW\CVRPTW\\Datasets\testDataset10.json" />
+  </ItemGroup>
   
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)\Datasets\testDataset10.json">
       <Link>testDataset10.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Remove="D:\fill\repo\testing-app\adding-new-time-matrix-providers\CVRPTW\CVRPTW\CVRPTW\\Datasets\testDataset100.json" />
     <None Include="$(MSBuildThisFileDirectory)\Datasets\testDataset100.json">
       <Link>testDataset100.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Remove="D:\fill\repo\testing-app\adding-new-time-matrix-providers\CVRPTW\CVRPTW\CVRPTW\\Datasets\testDataset1000.json" />
     <None Include="$(MSBuildThisFileDirectory)\Datasets\testDataset1000.json">
       <Link>testDataset1000.json</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="testDataset10.json">
-      <Pack>true</Pack>
-      <PackagePath>build</PackagePath>
-    </None>
-    <None Include="testDataset100.json">
-      <Pack>true</Pack>
-      <PackagePath>build</PackagePath>
-    </None>
-    <None Include="testDataset1000.json">
-      <Pack>true</Pack>
-      <PackagePath>build</PackagePath>
     </None>
   </ItemGroup>
 
