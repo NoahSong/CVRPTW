@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using CVRPTW.Clients.OrTools;
 using CVRPTW.Datasets;
 using CVRPTW.Models;
-using CVRPTW.Models.HereMapsApi;
 using CVRPTW.Models.VehicleRouting;
 using CVRPTW.Services;
 using Google.OrTools.ConstraintSolver;
@@ -391,7 +389,7 @@ namespace CVRPTW.Web.Controllers
         }
 
         [HttpGet, Route("api/datasets/test-vrptw/{testDatasetType:int}/{optionSolverApi}/{selectedTestApiRoutingOption}")]
-        public async Task<VehicleRoutingModel> RunVRPTWTestDataset(TestDatasetType testDatasetType, string optionSolverApi, string selectedTestApiRoutingOption)
+        public async Task<VehicleRoutingModel> RunVRPTWTestDataset(TestDatasetType testDatasetType, SolverOptions optionSolverApi, RoutingOptions selectedTestApiRoutingOption)
         {
             TestDatasetModel testDataset = new TestDatasetModel(testDatasetType);
 
@@ -440,27 +438,50 @@ namespace CVRPTW.Web.Controllers
             };
 
             RoutingMatrixResultModel result = new RoutingMatrixResultModel();
-            switch (selectedTestApiRoutingOption)
+            int[,] timeMatrix = null;
+            // Here Map Solver doesn't require time matrix
+            if (SolverOptions.HERE != optionSolverApi)
             {
-                case "osrm":
-                    result.Matrix = await _osrmClient.GetOsrmRoutingMatrixResultAsync(dataset);
-                    break;
-                case "tomtom":
-                    result.Matrix = await _tomtomClient.GetTomtomRoutingMatrixResultAsync(dataset);
-                    break;
-                case "esri": // todo : replace with proper client 
-                case "pgrouting": // todo : replace with proper client 
-                case "ors": // todo : replace with proper client 
-                case "here":
-                default:
-                    result = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
-                    break;
-            }
+                switch (selectedTestApiRoutingOption)
+                {
+                    case RoutingOptions.OSRM:
+                        result.Matrix = await _osrmClient.GetOsrmRoutingMatrixResultAsync(dataset);
+                        break;
+                    case RoutingOptions.TOMTOM:
+                        result.Matrix = await _tomtomClient.GetTomtomRoutingMatrixResultAsync(dataset);
+                        break;
+                    case RoutingOptions.ESRI: // todo : replace with proper client 
+                    case RoutingOptions.PGROUTING: // todo : replace with proper client 
+                    case RoutingOptions.OPEN_ROUTE_SERVICE: // todo : replace with proper client 
+                    case RoutingOptions.HERE:
+                    default:
+                        result = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
+                        break;
+                }
 
-            int[,] timeMatrix = result == null && result.Matrix != null ? null : result.Matrix;
+                timeMatrix = result == null && result.Matrix != null ? null : result.Matrix;
+            }
 
             GetTimeWindowsAndServiceTimeMatrix(dataset, out var timeWindows, out var serviceTimeMatrix);
 
+            switch (optionSolverApi)
+            {
+                case SolverOptions.HERE:
+                    break;
+                case SolverOptions.PGROUTING: // TODO: replace with proper method
+                case SolverOptions.VROOM: // TODO: replace wiht proper method
+                case SolverOptions.ORTOOLS:
+                default:
+                    dataset = GetOrToolsSolution(ref dataset, result, timeMatrix, timeWindows, serviceTimeMatrix);
+                    break;
+
+            }
+
+            return dataset;
+        }
+
+        private VehicleRoutingModel GetOrToolsSolution(ref VehicleRoutingModel dataset, RoutingMatrixResultModel result, int[,] timeMatrix, int[,] timeWindows, int[] serviceTimeMatrix)
+        {
             if (timeMatrix != null && timeMatrix.GetLength(1) == dataset.Bookings.Length + 1)
             {
                 dataset = SetTimeMatrixAndDurationForEachLocation(dataset, timeMatrix);

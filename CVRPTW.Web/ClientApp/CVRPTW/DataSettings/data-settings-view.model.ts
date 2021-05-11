@@ -1,3 +1,6 @@
+import { RoutingOptions } from "CVRPTW/Enums/routing-options";
+import { SolverOptions } from "CVRPTW/Enums/solver-options";
+
 export class DataSettingsViewModel {
   //public selectedTestOption!: DataSettingsViewModel_TestOptionModel;
   public selectedTestOption!: string;
@@ -16,11 +19,11 @@ export class DataSettingsViewModel_TestOptionModel {
 }
 export class DataSettingsViewModel_TestApiRoutingOptionModel {
   public title!: string;
-  public value!: string;
+  public value!: RoutingOptions;
   public isCustomisable!: boolean;
 }
 export class DataSettingsViewModel_TestSolverOptionModel {
   public title!: string;
-  public value!: string;
+  public value!: SolverOptions;
   public isCustomisable!: boolean;
 }

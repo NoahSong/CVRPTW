@@ -23,11 +23,11 @@ namespace CVRPTW.Services
         }
         public async Task<int[,]> GetTomtomRoutingMatrixResultAsync(VehicleRoutingModel parameter)
         {
-            int count = 0;
             var origins = new List<RoutingMatrixRequestModel.Origin>();
             origins.Add(new RoutingMatrixRequestModel.Origin
             {
-                point = new RoutingMatrixRequestModel.Point { 
+                point = new RoutingMatrixRequestModel.Point
+                {
                     latitude = parameter.Depot.Location.Latitude,
                     longitude = parameter.Depot.Location.Longitude
                 }
@@ -64,11 +64,13 @@ namespace CVRPTW.Services
                     }
                 };
             }));
-            var options = new RoutingMatrixRequestModel.Options() {
-                post = new RoutingMatrixRequestModel.Post() {
+            var options = new RoutingMatrixRequestModel.Options()
+            {
+                post = new RoutingMatrixRequestModel.Post()
+                {
                     avoidVignette = new List<string>() {
                     "AUS","CHE"
-                    }  
+                    }
                 }
             };
             var model = new RoutingMatrixRequestModel

@@ -29,6 +29,6 @@
     </ul>
   </div>
 </div>
-<button class="btn-lg" (click)="calculateClicked(viewModel.selectedTestOption,viewModel.selectedTestApiRoutingOption,viewModel.selectedTestSolverOption)" [disabled]="loading">
+<button class="btn-lg" (click)="calculateClicked(viewModel.selectedTestOption,viewModel.selectedTestApiRoutingOption,viewModel.selectedTestSolverOption)" [disabled]="loading || (!viewModel.selectedTestOption || !viewModel.selectedTestApiRoutingOption || !viewModel.selectedTestSolverOption)">
   CALCULATE
 </button>
