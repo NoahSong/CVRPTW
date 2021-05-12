@@ -37,8 +37,8 @@ namespace CVRPTW.Web.Controllers
             serviceTimeMatrix = serviceTimes.ToArray();
 
             timeWindows = new int[dataset.Bookings.Length + 1, 2];
-            timeWindows[0, 0] = (int)dataset.Depot.Vehicles.First().DeliveryStartTime.TotalMinutes * 60;
-            timeWindows[0, 1] = (int)dataset.Depot.Vehicles.First().DeliveryEndTime.TotalMinutes * 60;
+            timeWindows[0, 0] = (int)dataset.Depot.Vehicles.First().DeliveryStartTime.TimeOfDay.TotalMinutes * 60;
+            timeWindows[0, 1] = (int)dataset.Depot.Vehicles.First().DeliveryEndTime.TimeOfDay.TotalMinutes * 60;
 
             for (int i = 1; i <= dataset.Bookings.Length; i++)
             {
@@ -157,7 +157,7 @@ namespace CVRPTW.Web.Controllers
                     {
                         new VehicleRoutingModel.DepotModel.Vehicle
                         {
-                            Name = "Vehicle 1",
+                            Name = "Vehicle1",
                             FuelType = FuelType.Diesel | FuelType.Petrol
                         }
                     },
@@ -300,23 +300,23 @@ namespace CVRPTW.Web.Controllers
                     {
                         new VehicleRoutingModel.DepotModel.Vehicle
                         {
-                            Name =  "Vehicle 1",
-                            DeliveryStartTime = initialDateTime.TimeOfDay,
-                            DeliveryEndTime = initialDateTime.AddHours(12).TimeOfDay,
+                            Name =  "Vehicle1",
+                            DeliveryStartTime = initialDateTime,
+                            DeliveryEndTime = initialDateTime.AddHours(12),
                             FuelType = FuelType.Diesel | FuelType.Petrol
                         },
                         new VehicleRoutingModel.DepotModel.Vehicle
                         {
-                            Name = "Vehicle 2",
-                            DeliveryStartTime = initialDateTime.TimeOfDay,
-                            DeliveryEndTime = initialDateTime.AddHours(12).TimeOfDay,
+                            Name = "Vehicle2",
+                            DeliveryStartTime = initialDateTime,
+                            DeliveryEndTime = initialDateTime.AddHours(12),
                             FuelType = FuelType.Diesel | FuelType.Petrol
                         },
                         new VehicleRoutingModel.DepotModel.Vehicle
                         {
-                            Name = "Vehicle 3",
-                            DeliveryStartTime = initialDateTime.TimeOfDay,
-                            DeliveryEndTime = initialDateTime.AddHours(12).TimeOfDay,
+                            Name = "Vehicle3",
+                            DeliveryStartTime = initialDateTime,
+                            DeliveryEndTime = initialDateTime.AddHours(12),
                             FuelType = FuelType.Diesel | FuelType.Petrol
                         }
                     },
@@ -423,10 +423,10 @@ namespace CVRPTW.Web.Controllers
                     {
                         new VehicleRoutingModel.DepotModel.Vehicle
                         {
-                            Name = "Vehicle 1",
+                            Name = "Vehicle1",
                             FuelType = FuelType.Petrol,
-                            DeliveryStartTime = initialOperatingStartTime.TimeOfDay,
-                            DeliveryEndTime = initialOperatingStartTime.AddHours(16).TimeOfDay
+                            DeliveryStartTime = initialOperatingStartTime,
+                            DeliveryEndTime = initialOperatingStartTime.AddHours(16)
                         }
                     },
                     Location = new VehicleRoutingModel.Location
@@ -467,6 +467,7 @@ namespace CVRPTW.Web.Controllers
             switch (optionSolverApi)
             {
                 case SolverOptions.HERE:
+                    dataset = GetHereTourPlanningSolutionResult(dataset);
                     break;
                 case SolverOptions.PGROUTING: // TODO: replace with proper method
                 case SolverOptions.VROOM: // TODO: replace wiht proper method
@@ -559,6 +560,55 @@ namespace CVRPTW.Web.Controllers
                         dataset.Radius = result.Radius;
                     }
                 }
+            }
+
+            return dataset;
+        }
+
+        private VehicleRoutingModel GetHereTourPlanningSolutionResult(VehicleRoutingModel dataset)
+        {
+            var result = _hereMapsClient.GetHereMapsTourPlanningResultAsync(dataset).Result;
+
+            foreach (var vehicle in dataset.Depot.Vehicles)
+            {
+                var vehicleTour = result.Tours.Where(t => t.TypeId == vehicle.Name).FirstOrDefault();
+                var ordinalBookings = new List<VehicleRoutingModel.BookingModel>();
+
+                if (vehicleTour != null)
+                {
+                    var order = 0;
+                    for (int i = 0; i < vehicleTour.Stops.Length; i++)
+                    {
+                        var stop = vehicleTour.Stops[i];
+                        if (i == 0 && stop.Activities.FirstOrDefault().Type == "departure")
+                        {
+                            var nextNode = dataset.Bookings.Where(b => b.Title == vehicleTour.Stops[i + 1].Activities.FirstOrDefault().JobId).FirstOrDefault();
+                            dataset.Depot.NextNodeIndex = Array.IndexOf(dataset.Bookings, nextNode);
+                            order++;
+                        }
+                        else if (i == vehicleTour.Stops.Length - 1 && stop.Activities.FirstOrDefault().Type == "arrival")
+                        {
+
+                        }
+                        else
+                        {
+                            var booking = dataset.Bookings.Where(b => b.Title == vehicleTour.Stops[i].Activities.FirstOrDefault().JobId).FirstOrDefault();
+                            booking.Order = order++;
+
+                            if (i < vehicleTour.Stops.Length - 1)
+                            {
+                                var nextBooking = dataset.Bookings.Where(b => b.Title == vehicleTour.Stops[i + 1].Activities.FirstOrDefault().JobId).FirstOrDefault();
+                                booking.NextNodeIndex = Array.IndexOf(dataset.Bookings, nextBooking);
+                            }
+
+                            ordinalBookings.Add(booking);
+                        }
+                    }
+
+                    vehicle.TotalDuration += vehicleTour.Statistic.Duration;
+                    vehicle.OrdinalBookings = ordinalBookings.ToArray();
+                }
+                dataset.TotalDuration += vehicle.TotalDuration;
             }
 
             return dataset;

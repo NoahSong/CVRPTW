@@ -30,6 +30,7 @@ namespace CVRPTW.Shared
     public class HereMapsModel
     {
         public string RoutingMatrixUrl { get; set; }
+        public string TourPlanningUrl { get; set; }
         public string ApiKey { get; set; }
     }
 

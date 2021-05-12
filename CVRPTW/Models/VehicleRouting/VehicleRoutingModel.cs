@@ -41,8 +41,8 @@ namespace CVRPTW.Models.VehicleRouting
             public class Vehicle
             {
                 public string Name { get; set; }
-                public TimeSpan DeliveryStartTime { get; set; }
-                public TimeSpan DeliveryEndTime { get; set; }
+                public DateTime DeliveryStartTime { get; set; }
+                public DateTime DeliveryEndTime { get; set; }
                 public Location CurrentLocation { get; set; }
                 public BookingModel[] OrdinalBookings { get; set; }
                 public long TotalDuration { get; set; }
