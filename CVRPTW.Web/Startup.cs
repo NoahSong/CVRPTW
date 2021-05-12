@@ -1,4 +1,5 @@
 using CVRPTW.Services;
+using CVRPTW.Services.Interfaces;
 using CVRPTW.Shared;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -38,6 +39,7 @@ namespace CVRPTW.Web
             services.AddSingleton<ITomtomMapsApiClient, TomtomMapsApiClient>();
             services.AddSingleton<IHereMapsApiClient, HereMapsApiClient>();
             services.AddSingleton<IOsrmApiClient, OsrmApiClient>();
+            services.AddSingleton<IEsriApiClient, EsriApiClient>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

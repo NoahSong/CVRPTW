@@ -10,10 +10,13 @@ namespace CVRPTW.Shared
             HereMaps = new HereMapsModel();
             Osrm = new OSRMModel();
             Tomtom = new TomtomModel();
+            Esri = new EsriModel();
         }
 
         public GoogleModel Google { get; set; }
         public HereMapsModel HereMaps { get; set; }
+
+        public EsriModel Esri { get; set; }
         public OSRMModel Osrm { get; set; }
         public TomtomModel Tomtom { get; set; }
     }
@@ -31,6 +34,14 @@ namespace CVRPTW.Shared
     {
         public string RoutingMatrixUrl { get; set; }
         public string ApiKey { get; set; }
+    }
+
+    public class EsriModel
+    {
+        public string RoutingMatrixUrl { get; set; }
+        public string ApiKey { get; set; }
+
+        public string JobStatusUrl { get; set; }
     }
 
     public class OSRMModel

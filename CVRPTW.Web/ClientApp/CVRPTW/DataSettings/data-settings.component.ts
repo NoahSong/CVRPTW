@@ -42,6 +42,7 @@ export class DataSettingsComponent implements OnInit {
       { title: "OpenRouteService", value: RoutingOptions.OPEN_ROUTE_SERVICE, isCustomisable: false },
       { title: "tomtom", value: RoutingOptions.TOMTOM, isCustomisable: false },
       { title: "PGRouting", value: RoutingOptions.PGROUTING, isCustomisable: false },
+      { title: "ESRI", value: RoutingOptions.ESRI, isCustomisable: false },
     ];
     this.viewModel.testSolverOption = [
       { title: "OR Tools", value: SolverOptions.ORTOOLS, isCustomisable: false },

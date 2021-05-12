@@ -7,6 +7,7 @@ using CVRPTW.Datasets;
 using CVRPTW.Models;
 using CVRPTW.Models.VehicleRouting;
 using CVRPTW.Services;
+using CVRPTW.Services.Interfaces;
 using Google.OrTools.ConstraintSolver;
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Mvc;
@@ -18,16 +19,19 @@ namespace CVRPTW.Web.Controllers
         private readonly IHereMapsApiClient _hereMapsClient;
         private readonly IOsrmApiClient _osrmClient;
         private readonly ITomtomMapsApiClient _tomtomClient;
+        private readonly IEsriApiClient _esriApiClient;
 
         public DataSetsController(
             IHereMapsApiClient hereMapsClient,
             IOsrmApiClient OsrmClient,
-            ITomtomMapsApiClient TomtomClient
+            ITomtomMapsApiClient TomtomClient,
+            IEsriApiClient EsriApiClient
             )
         {
             _hereMapsClient = hereMapsClient;
             _osrmClient = OsrmClient;
             _tomtomClient = TomtomClient;
+            _esriApiClient = EsriApiClient;
         }
 
         private void GetTimeWindowsAndServiceTimeMatrix(VehicleRoutingModel dataset, out int[,] timeWindows, out int[] serviceTimeMatrix)
@@ -450,7 +454,9 @@ namespace CVRPTW.Web.Controllers
                     case RoutingOptions.TOMTOM:
                         result.Matrix = await _tomtomClient.GetTomtomRoutingMatrixResultAsync(dataset);
                         break;
-                    case RoutingOptions.ESRI: // todo : replace with proper client 
+                    case RoutingOptions.ESRI:
+                        result.Matrix = await _esriApiClient.GetEsriMapsRoutingMatrixResultAsync(dataset);
+                        break;
                     case RoutingOptions.PGROUTING: // todo : replace with proper client 
                     case RoutingOptions.OPEN_ROUTE_SERVICE: // todo : replace with proper client 
                     case RoutingOptions.HERE:
