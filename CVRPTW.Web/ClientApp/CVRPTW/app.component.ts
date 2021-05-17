@@ -45,4 +45,10 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.vehicleRoutingModelChangedSubscription?.unsubscribe()
   }
+
+  public randomRgba(): string {
+    var o = Math.round, r = Math.random, s = 255;
+    var rgbStr = "rgba(" + o(r() * s) + "," + o(r() * s) + "," + o(r() * s) + ", 1.0)";
+    return rgbStr;
+  }
 }

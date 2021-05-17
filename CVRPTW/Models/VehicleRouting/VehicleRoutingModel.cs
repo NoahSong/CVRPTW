@@ -19,6 +19,7 @@ namespace CVRPTW.Models.VehicleRouting
             public DateTime ServiceToTime { get; set; }
             public int ServiceMins { get; set; }
             public FuelType FuelType { get; set; }
+            public string[] FuelTypes { get; set; }
             public string Title { get; set; }
             public int[] TimeMatrix { get; set; }
             public List<Point> Points { get; set; }
@@ -47,6 +48,8 @@ namespace CVRPTW.Models.VehicleRouting
                 public BookingModel[] OrdinalBookings { get; set; }
                 public long TotalDuration { get; set; }
                 public FuelType FuelType { get; set; }
+                public string[] FuelTypes { get; set; }
+                public string Color { get; set; }
             }
 
             public int[] TimeMatrix { get; set; }

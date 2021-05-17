@@ -84,6 +84,7 @@ namespace CVRPTW.Web.Controllers
 
         private VehicleRoutingModel SetFoundSolution(VehicleRoutingModel dataset, RoutingModel routing, RoutingIndexManager manager, Assignment solution)
         {
+            var timeDimension = routing.GetDimensionOrDie("Time");
             for (int i = 0; i < dataset.Depot.Vehicles.Length; i++)
             {
                 dataset.Depot.Vehicles[i].TotalDuration = 0;
@@ -94,8 +95,6 @@ namespace CVRPTW.Web.Controllers
                 while (routing.IsEnd(index) == false)
                 {
                     var nodeIndex = manager.IndexToNode(index);
-                    var previousIndex = index;
-
                     index = solution.Value(routing.NextVar(index));
 
                     if (nodeIndex == 0) // depot
@@ -110,11 +109,13 @@ namespace CVRPTW.Web.Controllers
 
                         ordinalBookings.Add(dataset.Bookings[nodeIndex - 1]);
 
-                        dataset.Depot.Vehicles[i].TotalDuration += routing.GetArcCostForVehicle(previousIndex, index - 1, i);
+                        var indexTimeVar = timeDimension.CumulVar(index);
                     }
                 }
+                var endTimeVar = timeDimension.CumulVar(index);
 
                 dataset.Depot.Vehicles[i].OrdinalBookings = ordinalBookings.ToArray();
+                dataset.Depot.Vehicles[i].TotalDuration = (solution.Min(endTimeVar) - (int)dataset.Depot.Vehicles[i].DeliveryStartTime.TimeOfDay.TotalMinutes * 60);
                 dataset.TotalDuration += dataset.Depot.Vehicles[i].TotalDuration;
             }
 
@@ -162,7 +163,9 @@ namespace CVRPTW.Web.Controllers
                         new VehicleRoutingModel.DepotModel.Vehicle
                         {
                             Name = "Vehicle1",
-                            FuelType = FuelType.Diesel | FuelType.Petrol
+                            FuelType = FuelType.Diesel | FuelType.Petrol,
+                            FuelTypes = new string[]{ FuelType.Diesel.ToString(), FuelType.Petrol.ToString() },
+                            Color = "#40bfc1"
                         }
                     },
                     Location = new VehicleRoutingModel.Location
@@ -172,6 +175,7 @@ namespace CVRPTW.Web.Controllers
                     }
                 }
             };
+
             #endregion
 
             var result = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
@@ -194,6 +198,20 @@ namespace CVRPTW.Web.Controllers
                 {
                     dataset.Bookings[i].TimeMatrix = Enumerable.Range(0, timeMatrix.GetLength(1)).Select(x => timeMatrix[i + 1, x]).ToArray();
                     dataset.Bookings[i].Points = new List<VehicleRoutingModel.Point>();
+                    var fuelTypes = new List<string>();
+
+                    if ((dataset.Bookings[i].FuelType & FuelType.Diesel) == FuelType.Diesel)
+                    {
+                        fuelTypes.Add(FuelType.Diesel.ToString());
+                    }
+
+                    if ((dataset.Bookings[i].FuelType & FuelType.Petrol) == FuelType.Petrol)
+                    {
+                        fuelTypes.Add(FuelType.Petrol.ToString());
+                    }
+
+                    dataset.Bookings[i].FuelTypes = fuelTypes.ToArray();
+
 
                     for (int j = i + 1; j < dataset.Bookings.Length; j++)
                     {
@@ -307,21 +325,27 @@ namespace CVRPTW.Web.Controllers
                             Name =  "Vehicle1",
                             DeliveryStartTime = initialDateTime,
                             DeliveryEndTime = initialDateTime.AddHours(12),
-                            FuelType = FuelType.Diesel | FuelType.Petrol
+                            FuelType = FuelType.Diesel | FuelType.Petrol,
+                            FuelTypes = new string[]{ FuelType.Diesel.ToString(), FuelType.Petrol.ToString() },
+                            Color = "#f0134d"
                         },
                         new VehicleRoutingModel.DepotModel.Vehicle
                         {
                             Name = "Vehicle2",
                             DeliveryStartTime = initialDateTime,
                             DeliveryEndTime = initialDateTime.AddHours(12),
-                            FuelType = FuelType.Diesel | FuelType.Petrol
+                            FuelType = FuelType.Diesel | FuelType.Petrol,
+                            FuelTypes = new string[]{ FuelType.Diesel.ToString(), FuelType.Petrol.ToString() },
+                            Color = "#40bfc1"
                         },
                         new VehicleRoutingModel.DepotModel.Vehicle
                         {
                             Name = "Vehicle3",
                             DeliveryStartTime = initialDateTime,
                             DeliveryEndTime = initialDateTime.AddHours(12),
-                            FuelType = FuelType.Diesel | FuelType.Petrol
+                            FuelType = FuelType.Diesel | FuelType.Petrol,
+                            FuelTypes = new string[]{ FuelType.Diesel.ToString(), FuelType.Petrol.ToString() },
+                            Color = "#b6c9f0"
                         }
                     },
                     Location = new VehicleRoutingModel.Location
@@ -331,6 +355,23 @@ namespace CVRPTW.Web.Controllers
                     }
                 }
             };
+
+            foreach (var booking in dataset.Bookings)
+            {
+                var fuelTypes = new List<string>();
+
+                if ((booking.FuelType & FuelType.Diesel) == FuelType.Diesel)
+                {
+                    fuelTypes.Add(FuelType.Diesel.ToString());
+                }
+
+                if ((booking.FuelType & FuelType.Petrol) == FuelType.Petrol)
+                {
+                    fuelTypes.Add(FuelType.Petrol.ToString());
+                }
+
+                booking.FuelTypes = fuelTypes.ToArray();
+            }
 
             var result = await _hereMapsClient.GetHereMapsRoutingMatrixResultAsync(dataset);
             var timeMatrix = result == null ? null : result.Matrix;
@@ -414,6 +455,22 @@ namespace CVRPTW.Web.Controllers
                 }
             ).ToArray();
 
+            foreach (var booking in bookings)
+            {
+                var fuelTypes = new List<string>();
+                if ((booking.FuelType & FuelType.Diesel) == FuelType.Diesel)
+                {
+                    fuelTypes.Add(FuelType.Diesel.ToString());
+                }
+
+                if ((booking.FuelType & FuelType.Petrol) == FuelType.Petrol)
+                {
+                    fuelTypes.Add(FuelType.Petrol.ToString());
+                }
+
+                booking.FuelTypes = fuelTypes.ToArray();
+            }
+
             var firstBooking = bookings.First();
 
 
@@ -429,8 +486,19 @@ namespace CVRPTW.Web.Controllers
                         {
                             Name = "Vehicle1",
                             FuelType = FuelType.Petrol,
+                            FuelTypes = new string[] { FuelType.Petrol .ToString() },
                             DeliveryStartTime = initialOperatingStartTime,
-                            DeliveryEndTime = initialOperatingStartTime.AddHours(16)
+                            DeliveryEndTime = initialOperatingStartTime.AddHours(16),
+                            Color = "#f0134d"
+                        },
+                        new VehicleRoutingModel.DepotModel.Vehicle
+                        {
+                            Name = "Vehicle2",
+                            FuelType = FuelType.Petrol | FuelType.Diesel,
+                            FuelTypes = new string[] { FuelType.Petrol .ToString(), FuelType.Diesel.ToString() },
+                            DeliveryStartTime = initialOperatingStartTime,
+                            DeliveryEndTime = initialOperatingStartTime.AddHours(16),
+                            Color = "#40bfc1"
                         }
                     },
                     Location = new VehicleRoutingModel.Location
@@ -517,7 +585,7 @@ namespace CVRPTW.Web.Controllers
                     routing.SetArcCostEvaluatorOfVehicle(transitCallbackIndex, i);
                 }
 
-                routing.AddDimensionWithVehicleTransits(callbackIndices, timeWindows[0, 0], timeWindows[0, 1], false, "Time");
+                routing.AddDimensionWithVehicleTransits(callbackIndices, timeWindows[0, 1], timeWindows[0, 1], false, "Time");
                 routing.AddDimensionWithVehicleTransitAndCapacity(unaryTransitCallbackIndices, 0, vehicleCapacities, true, "Capacity");
 
                 var timeDimension = routing.GetMutableDimension("Time");
@@ -591,6 +659,20 @@ namespace CVRPTW.Web.Controllers
                             var nextNode = dataset.Bookings.Where(b => b.Title == vehicleTour.Stops[i + 1].Activities.FirstOrDefault().JobId).FirstOrDefault();
                             dataset.Depot.NextNodeIndex = Array.IndexOf(dataset.Bookings, nextNode);
                             order++;
+
+                            if (stop.Activities.Length > 1)// case where there is a booking in the same location with depot
+                            {
+                                var booking = dataset.Bookings.Where(b => b.Title == stop.Activities.Last().JobId).FirstOrDefault();
+                                booking.Order = order++;
+
+                                if (i < vehicleTour.Stops.Length - 1)
+                                {
+                                    var nextBooking = dataset.Bookings.Where(b => b.Title == vehicleTour.Stops[i + 1].Activities.FirstOrDefault().JobId).FirstOrDefault();
+                                    booking.NextNodeIndex = Array.IndexOf(dataset.Bookings, nextBooking);
+                                }
+
+                                ordinalBookings.Add(booking);
+                            }
                         }
                         else if (i == vehicleTour.Stops.Length - 1 && stop.Activities.FirstOrDefault().Type == "arrival")
                         {

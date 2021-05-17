@@ -42,7 +42,10 @@ namespace CVRPTW.Clients.OrTools
         {
             var fromNode = _manager.IndexToNode(fromIndex);
             var toNode = _manager.IndexToNode(toIndex);
-            return _timeMatrix[fromNode, toNode] + _serviceTimeMatrix[fromNode];
+            var routingTime = _timeMatrix[fromNode, toNode];
+            var serviceTime = _serviceTimeMatrix[fromNode];
+
+            return routingTime + serviceTime;
         }
     }
 }

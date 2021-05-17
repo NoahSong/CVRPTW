@@ -6,12 +6,12 @@
       <option *ngFor="let option of viewModel.testOptions" [value]="option.value">{{option.title}}</option>
     </select>
     <br />
-    Select routing Api:
+    Select Routing API:
     <select name="selectedTestApiRoutingOption" [(ngModel)]="viewModel.selectedTestApiRoutingOption" #selectedTestApiRoutingOption="ngModel">
       <option *ngFor="let option of viewModel.testApiRoutingOption" [value]="option.value">{{option.title}}</option>
     </select>
     <br />
-    Select Sover:
+    Select Solver:
     <select name="selectedTestSolverOption" [(ngModel)]="viewModel.selectedTestSolverOption" #selectedTestSolverOption="ngModel">
       <option *ngFor="let option of viewModel.testSolverOption" [value]="option.value">{{option.title}}</option>
     </select>
@@ -23,9 +23,10 @@
     <p>Total Duration: {{(vehicleRoutingModel.totalDuration / 60).toFixed(0)}} mins</p>
     <br>
     <ul *ngFor="let vehicle of vehicleRoutingModel.depot.vehicles">
-      <h4>{{vehicle.name}}</h4>
-      <p>Duration: {{(vehicle.totalDuration / 60).toFixed(0)}}</p>
+      <h4>{{vehicle.name}} (<span *ngFor="let fueltype of vehicle.fuelTypes; last as isLast">{{fueltype}}<span *ngIf="!isLast">, </span></span>)</h4>
+      <p>Duration: {{(vehicle.totalDuration / 60).toFixed(0)}} mins</p>
       <p>Order: {{getBookingOrders(vehicle)}} </p>
+      <br />
     </ul>
   </div>
 </div>

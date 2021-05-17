@@ -77,7 +77,7 @@ export class DataSettingsComponent implements OnInit {
   }
 
   public getBookingOrders(vehicle: VehicleRoutingModel_Depot_Vehicle): string {
-    if (vehicle !== undefined && vehicle.ordinalBookings !== undefined && vehicle.ordinalBookings.length > 0) {
+    if (vehicle != undefined && vehicle.ordinalBookings != undefined && vehicle.ordinalBookings.length > 0) {
       let orderStr = "";
 
       for (let i = 0; i < vehicle.ordinalBookings.length; i++) {
