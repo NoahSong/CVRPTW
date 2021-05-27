@@ -22,7 +22,7 @@
       </agm-overlay>
       <ul>
         <li *ngFor="let booking of vehicleRoutingModel?.bookings">
-          <agm-polyline *ngFor="let point of booking.points; index as pointIndex" strokeColor="rgba(5, 5, 5, 0.1)">
+          <agm-polyline *ngFor="let point of booking.points; index as pointIndex" strokeColor="rgba(5, 5, 5, 1)">
             <agm-polyline-point [latitude]="point.latitude" [longitude]="point.longitude"></agm-polyline-point>
             <agm-polyline-point [latitude]="booking.location.latitude" [longitude]="booking.location.longitude"></agm-polyline-point>
           </agm-polyline>
