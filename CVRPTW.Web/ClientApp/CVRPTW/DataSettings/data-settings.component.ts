@@ -42,6 +42,7 @@ export class DataSettingsComponent implements OnInit {
       { title: "OpenRouteService", value: RoutingOptions.OPEN_ROUTE_SERVICE, isCustomisable: false },
       { title: "tomtom", value: RoutingOptions.TOMTOM, isCustomisable: false },
       { title: "PGRouting", value: RoutingOptions.PGROUTING, isCustomisable: false },
+      { title: "ESRI", value: RoutingOptions.ESRI, isCustomisable: false },
     ];
     this.viewModel.testSolverOption = [
       { title: "OR Tools", value: SolverOptions.ORTOOLS, isCustomisable: false },
@@ -76,7 +77,7 @@ export class DataSettingsComponent implements OnInit {
   }
 
   public getBookingOrders(vehicle: VehicleRoutingModel_Depot_Vehicle): string {
-    if (vehicle !== undefined && vehicle.ordinalBookings !== undefined && vehicle.ordinalBookings.length > 0) {
+    if (vehicle != undefined && vehicle.ordinalBookings != undefined && vehicle.ordinalBookings.length > 0) {
       let orderStr = "";
 
       for (let i = 0; i < vehicle.ordinalBookings.length; i++) {

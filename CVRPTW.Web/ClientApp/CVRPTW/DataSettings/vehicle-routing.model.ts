@@ -1,5 +1,3 @@
-import { NumberValueAccessor } from "@angular/forms";
-
 export class VehicleRoutingModel {
   public bookings: VehicleRoutingModel_Booking[] = [];
   public totalDuration!: number;
@@ -38,10 +36,12 @@ export class VehicleRoutingModel_Depot {
 
 export class VehicleRoutingModel_Depot_Vehicle {
   public name: string = "";
+  public fuelTypes: string[] = [];
   public currentLocation: VehicleRoutingModel_Location | undefined;
   public ordinalBookings: VehicleRoutingModel_Booking[] = [];
   public totalDuration: number = 0;
   public containers: VehicleRoutingModel_Deport_Vehicle_Container[] = [];
+  public color: string = "#000000";
 }
 
 export class VehicleRoutingModel_Deport_Vehicle_Container {

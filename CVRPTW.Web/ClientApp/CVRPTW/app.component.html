@@ -22,19 +22,23 @@
       </agm-overlay>
       <ul>
         <li *ngFor="let booking of vehicleRoutingModel?.bookings">
-          <agm-polyline *ngFor="let point of booking.points; index as pointIndex" strokeColor="rgba(5, 5, 5, 0.1)">
+          <agm-polyline *ngFor="let point of booking.points; index as pointIndex" strokeColor="rgba(5, 5, 5, 1)">
             <agm-polyline-point [latitude]="point.latitude" [longitude]="point.longitude"></agm-polyline-point>
             <agm-polyline-point [latitude]="booking.location.latitude" [longitude]="booking.location.longitude"></agm-polyline-point>
           </agm-polyline>
-          <agm-polyline strokeColor="#40bfc1" [zIndex]="1" [strokeWeight]="3">
-            <agm-polyline-point [latitude]="booking.location.latitude" [longitude]="booking.location.longitude"></agm-polyline-point>
-            <agm-polyline-point *ngIf="vehicleRoutingModel!.bookings[booking.nextNodeIndex] != undefined" [latitude]="vehicleRoutingModel!.bookings[booking.nextNodeIndex].location.latitude" [longitude]="vehicleRoutingModel!.bookings[booking.nextNodeIndex].location.longitude"></agm-polyline-point>
+        </li>
+      </ul>
+      <ul *ngIf="vehicleRoutingModel != null && vehicleRoutingModel!.depot?.vehicles != null">
+        <li *ngFor="let vehicle of vehicleRoutingModel?.depot!.vehicles">
+          <agm-polyline *ngIf="vehicle.ordinalBookings != null && vehicle.ordinalBookings.length > 0" [strokeColor]="vehicle.color">
+            <agm-polyline-point [latitude]="vehicleRoutingModel!.depot!.location!.latitude" [longitude]="vehicleRoutingModel!.depot!.location!.longitude"></agm-polyline-point>
+            <agm-polyline-point *ngFor="let obooking of vehicle.ordinalBookings" [latitude]="obooking.location.latitude" [longitude]="obooking.location.longitude"></agm-polyline-point>
           </agm-polyline>
         </li>
       </ul>
-      <agm-circle *ngIf="vehicleRoutingModel && vehicleRoutingModel.center" [strokeWeight]="3" strokeColor="#0000ff" fillColor="#0000ff" [fillOpacity]="0.25" [latitude]="vehicleRoutingModel.center.latitude" [longitude]="vehicleRoutingModel.center.longitude" [radius]="vehicleRoutingModel.radius">
+      <!-- <agm-circle *ngIf="vehicleRoutingModel && vehicleRoutingModel.center" [strokeWeight]="3" strokeColor="#0000ff" fillColor="#0000ff" [fillOpacity]="0.25" [latitude]="vehicleRoutingModel.center.latitude" [longitude]="vehicleRoutingModel.center.longitude" [radius]="vehicleRoutingModel.radius">
 
-      </agm-circle>
+      </agm-circle> -->
     </agm-map>
   </div>
 </section>
